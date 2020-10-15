@@ -1,0 +1,140 @@
+﻿<UserControl x:Class="UnderPDF.Views.HomeScreen"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:converter="clr-namespace:UnderPDF.Views.Converter"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <converter:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <BooleanToVisibilityConverter x:Key="VisibleIfTrueConverter" />
+    </UserControl.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="240"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="120"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="20"/>
+
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="2">
+            <TextBox Name="CardStringTextBox" VerticalContentAlignment="Center" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}"></TextBox>
+            <TextBlock IsHitTestVisible="False" Text="UnderworldsDB link e.g. https://www.underworldsdb.com/shared.php?deck=0,N200,P10,N305,..." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,0,0,0" Foreground="DarkGray">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=CardStringTextBox}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+
+        <TextBlock Grid.Row="1" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock.Text>
+                <Binding Path="CardList.Count" StringFormat="{}Available cards ({0})"></Binding>
+            </TextBlock.Text>
+        </TextBlock>
+
+        <TextBlock Grid.Row="1" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock.Text>
+                <Binding Path="WarbandCount" StringFormat="{}Available Warbands ({0})"></Binding>
+            </TextBlock.Text>
+        </TextBlock>
+
+        <ComboBox Grid.Row="2" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="1" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" ItemsSource="{Binding WarbandList}" SelectedIndex="{Binding SelectedWarbandIndex}"></ComboBox>
+        <Button Grid.Row="3" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="1" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" Command="{Binding GenerateWarbandPDFCommand}">Generate Warband PDF</Button>
+
+        <ListBox Grid.Row="4" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="1" ItemsSource="{Binding LogList}" Loaded="ListBox_Loaded">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+                    <Setter Property="Focusable" Value="False"/>
+                    <Setter Property="IsHitTestVisible" Value="False" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+        </ListBox>
+
+        <TextBlock Grid.Row="1" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock.Text>
+                <Binding Path="DeckList.Count" StringFormat="{}Deck list ({0})"></Binding>
+            </TextBlock.Text>
+        </TextBlock>
+
+        <DataGrid Grid.Row="3" Grid.RowSpan="3" Grid.Column="0" Grid.ColumnSpan="1" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" ItemsSource="{Binding FilteredCardList}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" GridLinesVisibility="None" RowHeaderWidth="0" SelectionMode="Single" SelectionUnit="FullRow">
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding AddCardToDeckListCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=DataGrid}, Path=SelectedItem}"/>
+                <MouseBinding Gesture="MiddleClick" Command="{Binding AddAllCardsToDeckListCommand}"/>
+            </DataGrid.InputBindings>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Number" Binding="{Binding Number}" Width="Auto"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Button Grid.Row="5" Grid.RowSpan="1" Grid.Column="1" Grid.ColumnSpan="1" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" Command="{Binding GenerateDeckPDFCommand}">Generate Deck PDF</Button>
+
+        <DataGrid Grid.Row="2" Grid.RowSpan="3" Grid.Column="2" Grid.ColumnSpan="2" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" ItemsSource="{Binding DeckList}" AutoGenerateColumns="False" CanUserAddRows="False" IsReadOnly="True" GridLinesVisibility="None" RowHeaderWidth="0" SelectionMode="Single" SelectionUnit="FullRow">
+            <DataGrid.InputBindings>
+                <MouseBinding Gesture="LeftDoubleClick" Command="{Binding RemoveCardFromDeckListCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=DataGrid}, Path=SelectedItem}"/>
+                <MouseBinding Gesture="MiddleClick" Command="{Binding RemoveAllCardsFromDeckListCommand}"/>
+            </DataGrid.InputBindings>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Number" Binding="{Binding Number}" Width="Auto"/>
+                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <Grid Grid.Row="5" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2">
+            <TextBox x:Name="DecklistNameTextBox" VerticalContentAlignment="Center" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" Text="{Binding DeckName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock IsHitTestVisible="False" Text="Deck name..." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,0,0,0" Foreground="DarkGray">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=DecklistNameTextBox}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+        
+        <Button Grid.Row="5" Grid.RowSpan="1" Grid.Column="3" Grid.ColumnSpan="1" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" Command="{Binding GenerateDecklistCommand}">Generate Decklist</Button>
+
+        <Grid Grid.Row="2" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="1">
+            <TextBox x:Name="CardFilterTextBox" VerticalContentAlignment="Center" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" Text="{Binding CardFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock IsHitTestVisible="False" Text="Card filter..." VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,0,0,0" Foreground="DarkGray">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Text, ElementName=CardFilterTextBox}" Value="">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+
+        <Button Grid.Row="0" Grid.RowSpan="1" Grid.Column="2" Grid.ColumnSpan="2" IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBooleanConverter}}" Command="{Binding ImportCardsFromStringCommand}" CommandParameter="{Binding ElementName=CardStringTextBox, Path=Text}">Import</Button>
+        <ProgressBar Grid.Row="6" Grid.RowSpan="1" Grid.Column="0" Grid.ColumnSpan="4" IsIndeterminate="{Binding IsBusy}" ></ProgressBar>
+    
+    </Grid>
+</UserControl>

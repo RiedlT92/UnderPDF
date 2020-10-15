@@ -1,0 +1,13 @@
+﻿<Application x:Class="UnderPDF.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:UnderPDF"
+             xmlns:viewModels="clr-namespace:UnderPDF.ViewModels"
+             xmlns:views="clr-namespace:UnderPDF.Views"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <DataTemplate DataType="{x:Type viewModels:HomeScreenViewModel}">
+            <views:HomeScreen/>
+        </DataTemplate>
+    </Application.Resources>
+</Application>
